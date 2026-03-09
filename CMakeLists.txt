@@ -13,4 +13,7 @@ target_sources(app PRIVATE
   src/main.c
 )
 
+target_sources(app PRIVATE src/local_ble.c)
+target_sources(app PRIVATE src/local_lbs.c)
+
 # NORDIC SDK APP END
