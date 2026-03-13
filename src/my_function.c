@@ -1,14 +1,14 @@
 
 #include "my_function.h"
+#include "local_lbs.h"
 
 LOG_MODULE_DECLARE(MY_FUNCTION_H);
 
 #define BT_UUID_PRI_SRC BT_UUID_128_ENCODE(0x6E400001, 0xB5A3, 0xF393, 0xE0A9, 0xE50E24DCCA9E)
 #define BT_UUID_MY_SERVICE BT_UUID_DECLARE_128(BT_UUID_PRI_SRC)
 
-// 57A70000-9350-11ED-A1EB-0242AC120002
-#define BT_UUID_SEC_SRC BT_UUID_128_ENCODE(0x57A70000, 0x9350, 0x11ED, 0xA1EB, 0x0242AC120002)
-#define BT_UUID_SECONDARY_SERVICE BT_UUID_DECLARE_128(BT_UUID_SEC_SRC)
+// #define BT_UUID_HUE_SERV BT_UUID_128_ENCODE(0x57A70000, 0x9350, 0x11ED, 0xA1EB, 0x0242AC120002)
+// #define BT_UUID_SECONDARY_HUE_SERVICE BT_UUID_DECLARE_128(BT_UUID_HUE_SERV)
 
 #define BT_UUID_LED_VAL BT_UUID_128_ENCODE(0x00001525, 0x1212, 0xefde, 0x1523, 0x785feabcd123)
 #define BT_UUID_LED_CHAR BT_UUID_DECLARE_128(BT_UUID_LED_VAL)
@@ -24,6 +24,7 @@ static bool read_state;
 static int primaryState;
 static int secondaryState;
 static int includedServiceCharacteristicState;
+static int includedServiceSecondCharacteristicState;
 
 static struct secondary_service_cb secondary_cb;
 
@@ -57,15 +58,24 @@ static ssize_t readIncludedServiceCharacteristic(struct bt_conn *conn, const str
     return bt_gatt_attr_read(conn, attr, buf, len, offset, value, sizeof(*value));
 }
 
+static ssize_t readSecondIncludedServiceCharacteristic(struct bt_conn *conn, const struct bt_gatt_attr *attr, void *buf, uint16_t len, uint16_t offset) {
+    const char *value = attr->user_data;
+    includedServiceSecondCharacteristicState++;
+    LOG_INF("[READ] Included Service (Second) Attribute: handle: %u, conn: %p, value %d", attr->handle, (void *)conn, includedServiceSecondCharacteristicState);
+    return bt_gatt_attr_read(conn, attr, buf, len, offset, value, sizeof(*value));
+}
+
 static ssize_t read_button(struct bt_conn *conn, const struct bt_gatt_attr *attr, void *buf, uint16_t len, uint16_t offset) {
     const char *value = attr->user_data;
 	LOG_INF("Attribute read, handle: %u, conn: %p", attr->handle, (void *)conn);
     return 0;
 }
 
-BT_GATT_SERVICE_DEFINE(secondary_service, BT_GATT_SECONDARY_SERVICE(BT_UUID_SECONDARY_SERVICE),
+BT_GATT_SERVICE_DEFINE(secondary_service, BT_GATT_SECONDARY_SERVICE(BT_UUID_LBS),
 
     BT_GATT_CHARACTERISTIC(BT_UUID_SEC_CHAR, BT_GATT_CHRC_READ, BT_GATT_PERM_READ, readIncludedServiceCharacteristic, NULL, &includedServiceCharacteristicState),
+
+    BT_GATT_CHARACTERISTIC(BT_UUID_LED_CHAR, BT_GATT_CHRC_READ, BT_GATT_PERM_READ, readSecondIncludedServiceCharacteristic, NULL, &includedServiceSecondCharacteristicState),
 );
 
 BT_GATT_SERVICE_DEFINE(my_service, BT_GATT_PRIMARY_SERVICE(BT_UUID_MY_SERVICE),
