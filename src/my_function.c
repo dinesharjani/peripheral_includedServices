@@ -65,6 +65,24 @@ static ssize_t readSecondIncludedServiceCharacteristic(struct bt_conn *conn, con
     return bt_gatt_attr_read(conn, attr, buf, len, offset, value, sizeof(*value));
 }
 
+static ssize_t writeSecondIncludedServiceCharacteristic(struct bt_conn *conn, const struct bt_gatt_attr *attr, const void *buf, uint16_t len, uint16_t offset, uint8_t flags) {
+	if (len != 1U) {
+		LOG_INF("Write led: Incorrect data length");
+		return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
+	}
+
+	if (offset != 0) {
+		LOG_INF("Write led: Incorrect data offset");
+		return BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
+	}
+    
+    // Read the received value 
+	uint8_t val = *((uint8_t *)buf);
+    LOG_INF("[WRITE] Included Service (Second) Attribute: handle: %u, conn: %p, value %d", attr->handle, (void *)conn, val);
+    includedServiceSecondCharacteristicState = val;
+	return len;
+}
+
 static ssize_t read_button(struct bt_conn *conn, const struct bt_gatt_attr *attr, void *buf, uint16_t len, uint16_t offset) {
     const char *value = attr->user_data;
 	LOG_INF("Attribute read, handle: %u, conn: %p", attr->handle, (void *)conn);
@@ -75,7 +93,7 @@ BT_GATT_SERVICE_DEFINE(secondary_service, BT_GATT_SECONDARY_SERVICE(BT_UUID_LBS)
 
     BT_GATT_CHARACTERISTIC(BT_UUID_SEC_CHAR, BT_GATT_CHRC_READ, BT_GATT_PERM_READ, readIncludedServiceCharacteristic, NULL, &includedServiceCharacteristicState),
 
-    BT_GATT_CHARACTERISTIC(BT_UUID_LED_CHAR, BT_GATT_CHRC_READ, BT_GATT_PERM_READ, readSecondIncludedServiceCharacteristic, NULL, &includedServiceSecondCharacteristicState),
+    BT_GATT_CHARACTERISTIC(BT_UUID_LED_CHAR, BT_GATT_CHRC_READ | BT_GATT_CHRC_WRITE, BT_GATT_PERM_READ | BT_GATT_PERM_WRITE, readSecondIncludedServiceCharacteristic, writeSecondIncludedServiceCharacteristic, &includedServiceSecondCharacteristicState),
 );
 
 BT_GATT_SERVICE_DEFINE(my_service, BT_GATT_PRIMARY_SERVICE(BT_UUID_MY_SERVICE),
