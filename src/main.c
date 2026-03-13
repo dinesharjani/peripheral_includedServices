@@ -16,13 +16,13 @@
 #include <zephyr/bluetooth/hci.h>
 #include <zephyr/bluetooth/conn.h>
 #include <zephyr/bluetooth/uuid.h>
-// #include <zephyr/bluetooth/gap.h>
 #include <zephyr/bluetooth/gatt.h>
 #include <zephyr/settings/settings.h>
 #include <dk_buttons_and_leds.h>
 
 #include "local_ble.h"
 #include "local_lbs.h"
+#include "my_function.h"
 
 #define DEVICE_NAME             CONFIG_BT_DEVICE_NAME
 #define DEVICE_NAME_LEN         (sizeof(DEVICE_NAME) - 1)
@@ -38,6 +38,7 @@
 LOG_MODULE_REGISTER(Nordic_Peripheral, LOG_LEVEL_INF);
 
 static bool app_button_state;
+static int secondaryState;
 static struct k_work adv_work;
 
 static const struct bt_le_adv_param *adv_param = BT_LE_ADV_PARAM((BT_LE_ADV_OPT_CONN|BT_LE_ADV_OPT_USE_IDENTITY), 
@@ -156,6 +157,15 @@ static int init_button(void) {
 	return err;
 }
 
+static int secondary_read_cb(void) {
+	secondaryState++;
+	return secondaryState;
+}
+
+static struct secondary_service_cb secondary_callbacks = {
+	.sec_cb = secondary_read_cb,
+};
+
 int main(void) {
 	int blink_status = 0;
 	int err;
@@ -188,7 +198,13 @@ int main(void) {
 
 	err = my_lbs_init(&app_callbacks);
 	if (err) {
-		LOG_ERR("Failed to init LBS (err:%d)", err);
+		LOG_ERR("Failed to init LBS (err: %d)", err);
+		return -1;
+	}
+
+	err = ble_sec_init(&secondary_callbacks);
+	if (err) {
+		LOG_ERR("Failed to init Secondary Service Callbacks (err: %d)", err);
 		return -1;
 	}
 

@@ -8,6 +8,10 @@ source "Kconfig.zephyr"
 
 menu "Nordic LED-Button BLE GATT service sample"
 
+config MY_FUNCTION
+	bool "Enable my function"
+	default y
+
 config BT_LBS_SECURITY_ENABLED
 	bool "Enable security"
 	default y

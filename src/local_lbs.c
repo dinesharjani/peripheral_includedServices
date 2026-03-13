@@ -17,7 +17,6 @@
 #include <zephyr/logging/log.h>
 #include <zephyr/bluetooth/addr.h>
 
-// #include <bluetooth/services/lbs.h>
 #include <zephyr/settings/settings.h>
 #include <dk_buttons_and_leds.h>
 
@@ -28,8 +27,6 @@ LOG_MODULE_DECLARE(Local_LBS);
 static bool button_state;
 static struct my_lbs_cb lbs_cb;
 
-/* LED Button Service Declaration */
-/* STEP 2 - Create and add the MY LBS service to the Bluetooth LE stack */
 BT_GATT_SERVICE_DEFINE(my_lbs_svc, BT_GATT_PRIMARY_SERVICE(BT_UUID_LBS),
 
 	BT_GATT_CHARACTERISTIC(BT_UUID_LBS_BUTTON, BT_GATT_CHRC_READ, BT_GATT_PERM_READ, read_button, NULL, &button_state),
@@ -89,10 +86,10 @@ static ssize_t write_led(struct bt_conn *conn,
 
 /* A function to register application callbacks for the LED and Button characteristics  */
 int my_lbs_init(struct my_lbs_cb *callbacks) {
+	
 	if (callbacks) {
 		lbs_cb.led_cb = callbacks->led_cb;
 		lbs_cb.button_cb = callbacks->button_cb;
 	}
-
 	return 0;
 }

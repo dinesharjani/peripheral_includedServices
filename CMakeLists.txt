@@ -16,4 +16,6 @@ target_sources(app PRIVATE
 target_sources(app PRIVATE src/local_ble.c)
 target_sources(app PRIVATE src/local_lbs.c)
 
+target_sources_ifdef(CONFIG_MY_FUNCTION app PRIVATE src/my_function.c)
+
 # NORDIC SDK APP END
