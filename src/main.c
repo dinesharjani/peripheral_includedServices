@@ -122,7 +122,7 @@ static void connected(struct bt_conn *conn, uint8_t err) {
 	connectionParametersUpdated(conn, err);
 
 	k_sleep(K_MSEC(1000));  // Delay added to avoid link layer collisions.
-	// updatePHY(conn);
+	updatePHY(conn);
 
 	k_sleep(K_MSEC(1000));  // Delay added to avoid link layer collisions.
 	updateDataLength(conn);
@@ -140,11 +140,11 @@ static void recycled_cb(void) {
 }
 
 BT_CONN_CB_DEFINE(conn_callbacks) = {
-	.connected        = connected,
-	.disconnected     = disconnected,
-	.recycled         = recycled_cb,
-	.le_param_updated = connectionParametersUpdated,
-	// .le_phy_updated   = onLEphyUpdated,
+	.connected           = connected,
+	.disconnected        = disconnected,
+	.recycled            = recycled_cb,
+	.le_param_updated    = connectionParametersUpdated,
+	.le_phy_updated      = onLEphyUpdated,
 	.le_data_len_updated = onLEdataLengthUpdated,
 };
 
