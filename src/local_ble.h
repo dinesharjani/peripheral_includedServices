@@ -2,15 +2,18 @@
 #define BT_LOCAL_BLE
 
 #include <zephyr/types.h>
+#include <zephyr/bluetooth/bluetooth.h>
+#include <zephyr/bluetooth/hci.h>
+#include <zephyr/bluetooth/conn.h>
 
-static void connectionParametersUpdated(struct bt_conn *conn, uint8_t err);
+void connectionParametersUpdated(struct bt_conn *conn, uint8_t err);
 
-void on_le_data_len_updated(struct bt_conn *conn, struct bt_conn_le_data_len_info *info);
+void onLEdataLengthUpdated(struct bt_conn *conn, struct bt_conn_le_data_len_info *info);
 
-void on_le_phy_updated(struct bt_conn *conn, struct bt_conn_le_phy_info *param);
+void onLEphyUpdated(struct bt_conn *conn, struct bt_conn_le_phy_info *param);
 
-static void update_phy(struct bt_conn *conn);
+void updatePHY(struct bt_conn *conn);
 
-static void update_data_length(struct bt_conn *conn);
+void updateDataLength(struct bt_conn *conn);
 
 #endif

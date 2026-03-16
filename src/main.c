@@ -119,13 +119,13 @@ static void connected(struct bt_conn *conn, uint8_t err) {
 	my_conn = bt_conn_ref(conn);
 	dk_set_led_on(CON_STATUS_LED);
 
-	// connectionParametersUpdated(conn, err);
+	connectionParametersUpdated(conn, err);
 
-	// k_sleep(K_MSEC(1000));  // Delay added to avoid link layer collisions.
-	// update_phy(conn);
+	k_sleep(K_MSEC(1000));  // Delay added to avoid link layer collisions.
+	// updatePHY(conn);
 
-	// k_sleep(K_MSEC(1000));  // Delay added to avoid link layer collisions.
-	// update_data_length(conn);
+	k_sleep(K_MSEC(1000));  // Delay added to avoid link layer collisions.
+	updateDataLength(conn);
 }
 
 static void disconnected(struct bt_conn *conn, uint8_t reason) {
@@ -143,9 +143,9 @@ BT_CONN_CB_DEFINE(conn_callbacks) = {
 	.connected        = connected,
 	.disconnected     = disconnected,
 	.recycled         = recycled_cb,
-	// .le_param_updated = connectionParametersUpdated,
-	// .le_phy_updated   = on_le_phy_updated,
-	// .le_data_len_updated = on_le_data_len_updated,
+	.le_param_updated = connectionParametersUpdated,
+	// .le_phy_updated   = onLEphyUpdated,
+	.le_data_len_updated = onLEdataLengthUpdated,
 };
 
 static int init_button(void) {
